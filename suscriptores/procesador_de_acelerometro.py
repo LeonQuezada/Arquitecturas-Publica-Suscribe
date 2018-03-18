@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------
-# Archivo: procesador_de_temperatura.py
+# Archivo: procesador_de_acelerometro.py
 # Capitulo: 3 Estilo Publica-Subscribe
 # Autor(es): Perla Velasco & Yonathan Mtz.
 # Version: 2.0.1 Mayo 2017
@@ -11,7 +11,7 @@
 #
 #   Las características de ésta clase son las siguientes:
 #
-#                                   procesador_de_temperatura.py
+#                                   procesador_de_Acelerometro.py
 #           +-----------------------+-------------------------+------------------------+
 #           |  Nombre del elemento  |     Responsabilidad     |      Propiedades       |
 #           +-----------------------+-------------------------+------------------------+
@@ -19,9 +19,9 @@
 #           |                       |                         |    eventos generados   |
 #           |                       |  - Procesar valores     |    por el wearable     |
 #           |     Procesador de     |    extremos de          |    Xiaomi My Band.     |
-#           |     Temperatura       |    temperatura.         |  - Define el valor ex- |
+#           |     Acelerometro      |    Acelerometro.        |  - Define el valor ex- |
 #           |                       |                         |    tremo de la         |
-#           |                       |                         |    temperatura.        |
+#           |                       |                         |    Acelerometro.       |
 #           |                       |                         |  - Notifica al monitor |
 #           |                       |                         |    cuando un valor ex- |
 #           |                       |                         |    tremo es detectado. |
@@ -40,7 +40,7 @@
 #           +------------------------+--------------------------+-----------------------+
 #           |                        |  - ch: propio de Rabbit. |  - Procesa y detecta  |
 #           |                        |  - method: propio de     |    valores extremos   |
-#           |                        |     Rabbit.              |    de la temperatura. |
+#           |                        |     Rabbit.              |    de la Acelerometro.|
 #           |       callback()       |  - properties: propio de |                       |
 #           |                        |     Rabbit.              |                       |
 #           |                        |  - body: mensaje recibi- |                       |
@@ -65,7 +65,7 @@ from monitor import Monitor
 import time
 
 
-class ProcesadorTemperatura:
+class ProcesadorAcelerometro:
 
     def consume(self):
         try:
@@ -108,5 +108,5 @@ class ProcesadorTemperatura:
         return message
 
 if __name__ == '__main__':
-    p_temperatura = ProcesadorTemperatura()
-    p_temperatura.consume()
+    p_acelerometro = ProcesadorAcelerometro()
+    p_acelerometro.consume()
