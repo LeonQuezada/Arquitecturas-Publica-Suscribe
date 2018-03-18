@@ -166,27 +166,51 @@ class XiaomiMyBand:
         print('[x] valor publicado!')
         print('')
 
+        sleep(.5)
+
+        message['SensorAcelerometro_x'] = self.simulate_x_position()
+        message['SensorAcelerometro_y'] = self.simulate_y_position()
+        message['SensorAcelerometro_z'] = self.simulate_z_position()
+        message['id'] = str(self.id)
+        message['datetime'] = self.simulate_datetime()
+        message['producer'] = self.producer
+        message['model'] = self.model
+        message['hardware_version'] = self.hardware_version
+        message['software_version'] = self.software_version
+        # Se establece la conexión con el Distribuidor de Mensajes
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        # Se solicita un canal por el cuál se enviarán los signos vitales
+        channel = connection.channel()
+        channel.queue_declare(queue='SensorAcelerometro', durable=True)
+        print('[x] publicando valor de Sensor acelerometro...')
+        self.draw_progress_bar(2)
+        channel.basic_publish(exchange='', routing_key='SensorAcelerometro', body=str(message), properties=pika.BasicProperties(
+            delivery_mode=2,))  # Se realiza la publicación del mensaje en el Distribuidor de Mensajes
+        connection.close()  # Se cierra la conexión
+        print('[x] valor publicado!')
+        print('')
+
+
     def simulate_datetime(self):
         return time.strftime("%d:%m:%Y:%H:%M:%S")
 
     def simulate_x_position(self):
+        return random.uniform(0, 10)
         # agrega tú código aquí
         # la posición x óptima de un adulto mayor 
         # debe ser mínimo de 0 y máximo de 10
-        pass
 
     def simulate_y_position(self):
+        return random.uniform(-10, 2)
         # agrega tú código aquí
         # la posición y óptima de un adulto mayor 
         # debe ser mínimo de -10 y máximo de 2
-        pass
 
     def simulate_z_position(self):
         return random.uniform(-10, 1)
         # agrega tú código aquí
         # la posición z óptima de un adulto mayor 
         # debe ser mínimo de -10 y máximo de 1
-        pass
 
     def simulate_body_temperature(self):
         return random.uniform(67, 72)
