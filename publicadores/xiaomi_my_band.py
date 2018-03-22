@@ -77,6 +77,9 @@
 #           |                             |          Ninguno         |  - Simula la presión  |
 #           | simulate_blood_preasure()   |                          |    arterial.          |
 #           +-----------------------------+--------------------------+-----------------------+
+#           |                             |     int : id_adulto      |  - Envia las horas de |
+#           |simulate_medicamentos_reloj()|    lista : medicamentos  |    los medicamentos.  |
+#           +-----------------------------+--------------------------+-----------------------+
 #
 #-------------------------------------------------------------------------
 import pika
@@ -191,7 +194,28 @@ class XiaomiMyBand:
         connection.close()  # Se cierra la conexión
         print('[x] valor publicado!')
         print('')
-
+    
+    def simulate_medicamentos_reloj(self,id_adulto,medicamentos):
+        message = {}
+        #self.medicamentos
+        for m in medicamentos :
+            message['medicamento_nombre'] = m['medicamento_nombre']
+            message['medicamento_dosis'] = m['medicamento_dosis']
+            message['medicamento_hora'] = m['medicamento_hora']
+            message['id'] = str(id_adulto)
+            message['datetime'] = self.simulate_datetime()
+            # Se establece la conexión con el Distribuidor de Mensajes
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+            # Se solicita un canal por el cuál se enviarán los signos vitales
+            channel = connection.channel()
+            channel.queue_declare(queue='medicamentos', durable=True)
+            print('[x] publicando el medicamento '+m['medicamento_nombre']+'...')
+            self.draw_progress_bar(2)
+            channel.basic_publish(exchange='', routing_key='medicamentos', body=str(message), properties=pika.BasicProperties(
+                delivery_mode=2,))  # Se realiza la publicación del mensaje en el Distribuidor de Mensajes
+            connection.close()  # Se cierra la conexión
+            print('[x] valor publicado!')
+            print('')
 
     def simulate_datetime(self):
         return time.strftime("%d:%m:%Y:%H:%M:%S")

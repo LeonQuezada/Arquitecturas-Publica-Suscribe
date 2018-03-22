@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------
-# Archivo: procesador_de_acelerometro.py
+# Archivo: procesador_de_medicamentos.py
 # Capitulo: 3 Estilo Publica-Subscribe
-# Autor(es): Perla Velasco & Yonathan Mtz.
-# Version: 2.0.1 Mayo 2017
+# Autor(es): EagleSoft
+# Version: 1.0.0 Marzo 2018S
 # Descripción:
 #
 #   Esta clase define el rol de un suscriptor, es decir, es un componente que recibe mensajes.
@@ -49,6 +49,9 @@
 #           |    string_to_json()    |  - string: texto a con-  |  - Convierte un string|
 #           |                        |     vertir en JSON.      |    en un objeto JSON. |
 #           +------------------------+--------------------------+-----------------------+
+#           |    simulador_reloj()   |                          |  - Inicia la simulaci-|
+#           |                        |        Ninguno           |    on de un reloj     |
+#           +------------------------+--------------------------+-----------------------+
 #
 #
 #           Nota: "propio de Rabbit" implica que se utilizan de manera interna para realizar
@@ -64,6 +67,7 @@ sys.path.append('../')
 from monitor import Monitor
 import time
 import threading
+from pyfiglet import figlet_format
 
 
 medicamentosBD_Simulacion=[]
@@ -98,11 +102,19 @@ def simulador_reloj():
                 print i,':',x
                 time.sleep(1)
                 try:
-                    for x in medicamentosBD_Simulacion:
-                        print x['medicamento_hora']
-                        x.delete
+                    for z in medicamentosBD_Simulacion:
+                        if len(medicamentosBD_Simulacion)>0:
+                            parte_horas=int(z['medicamento_hora'][0]+z['medicamento_hora'][1])
+                            parte_minutos=int(z['medicamento_hora'][3]+z['medicamento_hora'][4])
+                            if i == parte_horas and x == parte_minutos:
+                                print(figlet_format('Advertencia'))
+                                print 'El adulto con id : ',z['id'],'requiere el medicamento: ',z['medicamento_nombre']
+                                medicamentosBD_Simulacion.remove(z)
+                                time.sleep(3)
+                        else:
+                            print 'esta bacio'
                 except Exception as e:
-                    print 'nada'
+                    print e
 
 
 
@@ -120,9 +132,9 @@ def string_to_json(string):
 p_med_cola = threading.Thread(target=consume, name='Servicio')
 reloj = threading.Thread(target=simulador_reloj, name='Worker')
 
-p_med_cola.start()
-reloj.start()
 
+reloj.start()
+p_med_cola.start()
 
     #p_medicamentos.consume()
     #p_medicamentos.simulador_reloj()
