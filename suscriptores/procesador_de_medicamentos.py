@@ -63,46 +63,66 @@ import sys
 sys.path.append('../')
 from monitor import Monitor
 import time
+import threading
 
 
-class ProcesadorMedicamentos:
-    medicamentos=[]
+medicamentosBD_Simulacion=[]
 
-    def consume(self):
-        try:
-            # Se establece la conexión con el Distribuidor de Mensajes
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-            # Se solicita un canal por el cuál se enviarán los signos vitales
-            channel = connection.channel()
-            # Se declara una cola para leer los mensajes enviados por el
-            # Publicador
-            channel.queue_declare(queue='medicamentos', durable=True)
-            channel.basic_qos(prefetch_count=1)
-            channel.basic_consume(self.callback, queue='medicamentos')
-            channel.start_consuming()  # Se realiza la suscripción en el Distribuidor de Mensajes
-        except (KeyboardInterrupt, SystemExit):
-            channel.close()  # Se cierra la conexión
-            sys.exit("Conexión finalizada...")
-            time.sleep(1)
-            sys.exit("Programa terminado...")
+def consume():
+    try:
+        # Se establece la conexión con el Distribuidor de Mensajes
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        # Se solicita un canal por el cuál se enviarán los signos vitales
+        channel = connection.channel()
+        # Se declara una cola para leer los mensajes enviados por el
+        # Publicador
+        channel.queue_declare(queue='medicamentos', durable=True)
+        channel.basic_qos(prefetch_count=1)
+        channel.basic_consume(callback, queue='medicamentos')
+        channel.start_consuming()  # Se realiza la suscripción en el Distribuidor de Mensajes
+    except (KeyboardInterrupt, SystemExit):
+        channel.close()  # Se cierra la conexión
+        sys.exit("Conexión finalizada...")
+        time.sleep(1)
+        sys.exit("Programa terminado...")
 
-    def callback(self, ch, method, properties, body):
-        json_message = self.string_to_json(body)
-        json_message['medicamento_nombre']
-        json_message['medicamento_dosis']
-        json_message['medicamento_hora']
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+def callback(ch, method, properties, body):
+    json_message = string_to_json(body)
+    medicamentosBD_Simulacion.append(json_message)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    def string_to_json(self, string):
-        message = {}
-        string = string.replace('{', '')
-        string = string.replace('}', '')
-        values = string.split(', ')
-        for x in values:
-            v = x.split(': ')
-            message[v[0].replace('\'', '')] = v[1].replace('\'', '')
-        return message
+def simulador_reloj():
+    while True:
+        for i in xrange(0,24):
+            for x in xrange(0,60):
+                print i,':',x
+                time.sleep(1)
+                try:
+                    for x in medicamentosBD_Simulacion:
+                        print x['medicamento_hora']
+                        x.delete
+                except Exception as e:
+                    print 'nada'
 
-if __name__ == '__main__':
-    p_acelerometro = ProcesadorAcelerometro()
-    p_acelerometro.consume()
+
+
+def string_to_json(string):
+    message = {}
+    string = string.replace('{', '')
+    string = string.replace('}', '')
+    values = string.split(', ')
+    for x in values:
+        v = x.split(': ')
+        message[v[0].replace('\'', '')] = v[1].replace('\'', '')
+    return message
+
+
+p_med_cola = threading.Thread(target=consume, name='Servicio')
+reloj = threading.Thread(target=simulador_reloj, name='Worker')
+
+p_med_cola.start()
+reloj.start()
+
+
+    #p_medicamentos.consume()
+    #p_medicamentos.simulador_reloj()
