@@ -146,6 +146,7 @@ class XiaomiMyBand:
 
         sleep(.5)
 
+        message = {}
         message['blood_preasure'] = self.simulate_blood_preasure()
         message['id'] = str(self.id)
         message['datetime'] = self.simulate_datetime()
@@ -168,6 +169,7 @@ class XiaomiMyBand:
 
         sleep(.5)
 
+        message = {}
         message['SensorAcelerometro_x'] = self.simulate_x_position()
         message['SensorAcelerometro_y'] = self.simulate_y_position()
         message['SensorAcelerometro_z'] = self.simulate_z_position()
